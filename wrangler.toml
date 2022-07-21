@@ -1,0 +1,30 @@
+name = "dagula-gateway"
+main = "./dist/worker.mjs"
+compatibility_date = "2022-07-20"
+compatibility_flags = [
+  "streams_enable_constructors"
+]
+
+[build]
+command = "npm run build"
+
+# PROD!
+[env.production]
+account_id = "fffa4b4363a7e5250af8357087263b3a" # DAG House CF account
+#route = "IDK dagular.dag.haus ?"
+
+# Staging!
+[env.staging]
+account_id = "fffa4b4363a7e5250af8357087263b3a" # DAG House CF account
+#route = "IDK dagular-staging.dag.haus ?"
+
+# Test!
+[env.test]
+workers_dev = true
+
+[env.alanshaw]
+workers_dev = true
+account_id = "4fe12d085474d33bdcfd8e9bed4d8f95"
+
+[env.alanshaw.vars]
+DEBUG = "true"

@@ -1,0 +1,44 @@
+{
+  "name": "dagula-gateway",
+  "version": "0.0.0",
+  "description": "An IPFS Gateway for Cloudflare Workers that uses Dagula.",
+  "main": "src/worker.js",
+  "type": "module",
+  "scripts": {
+    "lint": "standard",
+    "prebuild": "tsc",
+    "build": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/worker.js",
+    "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m",
+    "test": "npm run build && npm run test:worker",
+    "test:worker": "ava --verbose test/*.spec.js"
+  },
+  "keywords": [
+    "gateway",
+    "ipfs",
+    "cloudflare",
+    "workers",
+    "dagula",
+    "ipfs",
+    "libp2p"
+  ],
+  "author": "Alan Shaw",
+  "license": "Apache-2.0 OR MIT",
+  "dependencies": {
+    "@chainsafe/libp2p-noise": "^7.0.1",
+    "@libp2p/mplex": "^1.2.1",
+    "cf-libp2p-ws-transport": "^1.1.0",
+    "dagula": "^2.0.1",
+    "libp2p": "^0.37.3",
+    "multiformats": "^9.7.0",
+    "timeout-abort-controller": "^3.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.14.1",
+    "ava": "^4.3.1",
+    "esbuild": "^0.14.49",
+    "miniflare": "^2.6.0",
+    "standard": "^17.0.0",
+    "typescript": "^4.7.4",
+    "wrangler": "^2.0.22"
+  }
+}
