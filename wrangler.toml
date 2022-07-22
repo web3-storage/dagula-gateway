@@ -10,13 +10,13 @@ command = "npm run build"
 
 # PROD!
 [env.production]
-account_id = "fffa4b4363a7e5250af8357087263b3a" # DAG House CF account
-#route = "IDK dagular.dag.haus ?"
+account_id = "fffa4b4363a7e5250af8357087263b3a"
+route = "dagular.dag.haus"
 
 # Staging!
 [env.staging]
-account_id = "fffa4b4363a7e5250af8357087263b3a" # DAG House CF account
-#route = "IDK dagular-staging.dag.haus ?"
+account_id = "fffa4b4363a7e5250af8357087263b3a"
+route = "dagular-staging.dag.haus"
 
 # Test!
 [env.test]
