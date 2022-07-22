@@ -2,6 +2,8 @@
 
 > An IPFS Gateway for Cloudflare Workers that uses Dagula.
 
+![Dagula Gateway Diagram](https://dweb.link/ipfs/bafybeiahj2pavafqxvxhmdezdp44g4lmquhkkwlyntubc5byir6o6wpe6y/dagula-gateway.png)
+
 ## Local setup
 
 1. Copy `.env.tpl` file into `.env` and fill in environment variables
