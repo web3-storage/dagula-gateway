@@ -9,7 +9,7 @@
     "prebuild": "tsc",
     "build": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/worker.js",
     "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m",
-    "test": "npm run build && npm run test:worker",
+    "test": "npm run build",
     "test:worker": "ava --verbose test/*.spec.js"
   },
   "keywords": [
