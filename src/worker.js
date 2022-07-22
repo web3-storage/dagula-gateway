@@ -4,6 +4,8 @@ import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
 import { Dagula } from 'dagula'
 import { TimeoutController } from 'timeout-abort-controller'
+// import { enable } from '@libp2p/logger'
+// enable('*')
 
 /** @typedef {import('./bindings').Handler} Handler */
 
@@ -56,8 +58,12 @@ async function requestHandler (request, env, { ipfsPath, libp2p }) {
           controller.reset()
           yield chunk
         }
+      } catch (err) {
+        console.error(err.stack)
       } finally {
         controller.clear()
+        // TODO: need a good way to hook into this from withLibp2p middleware
+        libp2p.stop()
       }
     })())
 
@@ -159,8 +165,9 @@ function withLibp2p (handler) {
       await node.start()
       ctx.libp2p = node
       return await handler(request, env, ctx)
-    } finally {
-      if (node) ctx.waitUntil(node.stop())
+    } catch (err) {
+      if (node) node.stop()
+      throw err
     }
   }
 }

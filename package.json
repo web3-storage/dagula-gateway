@@ -27,7 +27,7 @@
     "@chainsafe/libp2p-noise": "^7.0.1",
     "@libp2p/mplex": "^1.2.1",
     "cf-libp2p-ws-transport": "^1.1.0",
-    "dagula": "^2.0.1",
+    "dagula": "^2.0.2",
     "libp2p": "^0.37.3",
     "multiformats": "^9.7.0",
     "timeout-abort-controller": "^3.0.0"
