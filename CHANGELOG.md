@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/web3-storage/dagula-gateway/compare/v1.0.0...v1.0.1) (2022-07-22)
+
+
+### Bug Fixes
+
+* typo ([b32af03](https://github.com/web3-storage/dagula-gateway/commit/b32af039ae222c2f9aba7f7e362a988b49181cea))
+
 ## 1.0.0 (2022-07-22)
 
 
