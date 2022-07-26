@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
       - run: npm install
       - run: npm run build
       - name: Lint
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
       - uses: bahmutov/npm-install@v1
       - run: npm run build
       - run: npm run test
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
       - uses: bahmutov/npm-install@v1
       - name: Publish app
         uses: cloudflare/wrangler-action@2.0.0
@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 18
           registry-url: https://registry.npmjs.org/
       - uses: bahmutov/npm-install@v1
       - name: Deploy to Cloudflare

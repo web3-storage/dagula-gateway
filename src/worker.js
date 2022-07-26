@@ -26,14 +26,15 @@ export default {
 }
 
 /** @type {Handler} */
-async function requestHandler (request, env, { ipfsPath, libp2p }) {
+async function requestHandler (request, env, ctx) {
+  const { ipfsPath, libp2p } = ctx
   if (!ipfsPath) throw new Error('missing IPFS path')
   if (!libp2p) throw new Error('missing libp2p host')
 
   const dagula = new Dagula(libp2p, env.REMOTE_PEER)
   const controller = new TimeoutController(TIMEOUT)
   try {
-    console.log('get', ipfsPath)
+    console.log('get', ipfsPath, 'from', env.REMOTE_PEER)
     const entry = await dagula.getUnixfs(ipfsPath, { signal: controller.signal })
     if (entry.type === 'directory') {
       throw new Error('directory listing not implemented')
@@ -60,6 +61,7 @@ async function requestHandler (request, env, { ipfsPath, libp2p }) {
         }
       } catch (err) {
         console.error(err.stack)
+        throw err
       } finally {
         controller.clear()
         // TODO: need a good way to hook into this from withLibp2p middleware
@@ -67,7 +69,12 @@ async function requestHandler (request, env, { ipfsPath, libp2p }) {
       }
     })())
 
-    return new Response(stream)
+    return new Response(stream, {
+      headers: {
+        etag: entry.cid.toString(),
+        'Content-Length': entry.size
+      }
+    })
   } catch (err) {
     controller.clear()
     throw err
@@ -153,14 +160,14 @@ function withLibp2p (handler) {
   return async (request, env, ctx) => {
     let node
     try {
-      const { Noise } = await import('@chainsafe/libp2p-noise')
+      const { NOISE } = await import('@chainsafe/libp2p-noise')
       const wsTransport = new WebSockets()
       // TODO: use NODE ED25519 to generate key
       // https://developers.cloudflare.com/workers/runtime-apis/web-crypto/
       node = await createLibp2p({
         transports: [wsTransport],
         streamMuxers: [new Mplex({ maxMsgSize: 4 * 1024 * 1024 })],
-        connectionEncryption: [new Noise()]
+        connectionEncryption: [NOISE]
       })
       await node.start()
       ctx.libp2p = node
