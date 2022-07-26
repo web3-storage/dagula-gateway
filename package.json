@@ -29,6 +29,8 @@
     "dagula": "^2.0.3",
     "ipfs-core": "^0.15.4",
     "libp2p": "^0.37.3",
+    "magic-bytes.js": "^1.0.12",
+    "mrmime": "^1.0.1",
     "multiformats": "^9.7.0",
     "timeout-abort-controller": "^3.0.0"
   },

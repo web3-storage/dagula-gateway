@@ -26,6 +26,7 @@ export function getMiniflare (env) {
     buildCommand: undefined,
     wranglerConfigEnv: 'test',
     modules: true,
+    // https://github.com/cloudflare/miniflare/issues/292
     // globalAsyncIO: true,
     globalTimers: true
   })

@@ -1,9 +1,16 @@
 /* eslint-env browser */
-import { createLibp2p } from 'libp2p'
-import { WebSockets } from 'cf-libp2p-ws-transport'
-import { Mplex } from '@libp2p/mplex'
 import { Dagula } from 'dagula'
 import { TimeoutController } from 'timeout-abort-controller'
+import {
+  withCorsHeaders,
+  withErrorHandler,
+  withHttpGet,
+  withIpfsPath,
+  withLibp2p,
+  composeMiddleware
+} from './middleware.js'
+import { toReadable } from './streams.js'
+import { detectContentType } from './mime.js'
 // import { enable } from '@libp2p/logger'
 // enable('*')
 
@@ -42,14 +49,24 @@ async function requestHandler (request, env, ctx) {
       throw new Error('unsupported entry type')
     }
 
+    /** @type {Record<string, string>} */
+    const headers = {
+      etag: entry.cid.toString(),
+      'Content-Length': entry.size
+    }
+
     console.log('unixfs root', entry.cid.toString())
     const contentIterator = entry.content()[Symbol.asyncIterator]()
     const { done, value: firstChunk } = await contentIterator.next()
     if (done || !firstChunk.length) {
-      return new Response(null, { status: 204 })
+      return new Response(null, { status: 204, headers })
     }
 
-    // TODO: mime type sniffing
+    const fileName = entry.path.split('/').pop()
+    const contentType = detectContentType(fileName, firstChunk)
+    if (contentType) {
+      headers['Content-Type'] = contentType
+    }
 
     // stream the remainder
     const stream = toReadable((async function * () {
@@ -69,138 +86,9 @@ async function requestHandler (request, env, ctx) {
       }
     })())
 
-    return new Response(stream, {
-      headers: {
-        etag: entry.cid.toString(),
-        'Content-Length': entry.size
-      }
-    })
+    return new Response(stream, { headers })
   } catch (err) {
     controller.clear()
     throw err
   }
-}
-
-// Middleware /////////////////////////////////////////////////////////////////
-
-/** @typedef {(h: Handler) => Handler} Middleware */
-
-/**
- * Adds CORS headers to the response.
- * @type {Middleware}
- */
-function withCorsHeaders (handler) {
-  return async (request, env, ctx) => {
-    let response = await handler(request, env, ctx)
-    // Clone the response so that it's no longer immutable (like if it comes
-    // from cache or fetch)
-    response = new Response(response.body, response)
-    const origin = request.headers.get('origin')
-    if (origin) {
-      response.headers.set('Access-Control-Allow-Origin', origin)
-      response.headers.set('Vary', 'Origin')
-    } else {
-      response.headers.set('Access-Control-Allow-Origin', '*')
-    }
-    response.headers.set('Access-Control-Expose-Headers', 'Link')
-    return response
-  }
-}
-
-/**
- * Catches any errors, logs them and returns a suitable response.
- * @type {Middleware}
- */
-function withErrorHandler (handler) {
-  return async (request, env, ctx) => {
-    try {
-      return await handler(request, env, ctx)
-    } catch (err) {
-      console.error(err.stack)
-      const msg = env.DEBUG === 'true' ? err.stack : err.message
-      return new Response(msg, { status: err.status || 500 })
-    }
-  }
-}
-
-/**
- * Validates the request uses a HTTP GET method.
- * @type {Middleware}
- */
-function withHttpGet (handler) {
-  return (request, env, ctx) => {
-    if (request.method !== 'GET') {
-      throw new Error('method not allowed', { status: 405 })
-    }
-    return handler(request, env, ctx)
-  }
-}
-
-/**
- * Extracts an IPFS path ('<cid>[/optional/path]') from the request and stores
- * it on the context under `ipfsPath`.
- * @type {Middleware}
- */
-function withIpfsPath (handler) {
-  return (request, env, ctx) => {
-    const path = new URL(request.url).pathname
-    if (!path.startsWith('/ipfs/')) {
-      throw new Error('not found', { status: 404 })
-    }
-    ctx.ipfsPath = decodeURI(path.slice(6))
-    return handler(request, env, ctx)
-  }
-}
-
-/**
- * Instantiates a new Libp2p node and attaches it to context as `libp2p`.
- * @type {Middleware}
- */
-function withLibp2p (handler) {
-  return async (request, env, ctx) => {
-    let node
-    try {
-      const { NOISE } = await import('@chainsafe/libp2p-noise')
-      const wsTransport = new WebSockets()
-      // TODO: use NODE ED25519 to generate key
-      // https://developers.cloudflare.com/workers/runtime-apis/web-crypto/
-      node = await createLibp2p({
-        transports: [wsTransport],
-        streamMuxers: [new Mplex({ maxMsgSize: 4 * 1024 * 1024 })],
-        connectionEncryption: [NOISE]
-      })
-      await node.start()
-      ctx.libp2p = node
-      return await handler(request, env, ctx)
-    } catch (err) {
-      if (node) node.stop()
-      throw err
-    }
-  }
-}
-
-// Utilities //////////////////////////////////////////////////////////////////
-
-/**
- * @param {...Middleware} middlewares
- * @returns {Middleware}
- */
-function composeMiddleware (...middlewares) {
-  return handler => middlewares.reduceRight((h, m) => m(h), handler)
-}
-
-/**
- * @param {AsyncIterable<Uint8Array>} iterable
- */
-function toReadable (iterable) {
-  /** @type {AsyncIterator<Uint8Array>} */
-  let iterator
-  return new ReadableStream({
-    async pull (controller) {
-      iterator = iterator || iterable[Symbol.asyncIterator]()
-      const { value, done } = await iterator.next()
-      if (done) return controller.close()
-      controller.enqueue(value)
-    }
-  })
 }

@@ -55,6 +55,18 @@ test('should set Content-Length header', async (/** @type {ExecutionContext} */ 
   t.is(contentLength, totalBytes)
 })
 
+test('should set Content-Type header', async (/** @type {ExecutionContext} */ t) => {
+  const { ipfs, miniflare } = t.context
+  const payload = `<!doctype html>\n<p>test${Date.now()}</p>`
+  const { cid } = await ipfs.add({ path: 'test.html', content: payload }, { wrapWithDirectory: true })
+
+  const res = await miniflare.dispatchFetch(`http://localhost:8787/ipfs/${cid}/test.html`)
+  t.is(200, res.status)
+
+  const contentType = res.headers.get('Content-Type')
+  t.is(contentType, 'text/html')
+})
+
 test.afterEach(async (/** @type {ExecutionContext} */ t) => {
   await t.context.ipfs.stop()
 })
