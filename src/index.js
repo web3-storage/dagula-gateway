@@ -1,6 +1,7 @@
 /* eslint-env browser */
 import { Dagula } from 'dagula'
 import { TimeoutController } from 'timeout-abort-controller'
+import { fromString } from 'uint8arrays'
 import {
   withCorsHeaders,
   withErrorHandler,
@@ -43,9 +44,30 @@ async function requestHandler (request, env, ctx) {
   try {
     console.log('get', ipfsPath, 'from', env.REMOTE_PEER)
     const entry = await dagula.getUnixfs(ipfsPath, { signal: controller.signal })
+
     if (entry.type === 'directory') {
-      throw new Error('directory listing not implemented')
-    } else if (entry.type !== 'file' && entry.type !== 'raw' && entry.type !== 'identity') {
+      const stream = toReadable((async function * () {
+        yield fromString('<!doctype html>\n<ul>')
+        try {
+          for await (const { cid, path, name } of entry.content()) {
+            controller.reset()
+            yield fromString(`<li>${cid} <a href="${esc(path)}">${esc(name)}</a></li>\n`)
+          }
+          yield fromString('</ul>')
+        } catch (err) {
+          console.error(err.stack)
+          throw err
+        } finally {
+          controller.clear()
+          // TODO: need a good way to hook into this from withLibp2p middleware
+          libp2p.stop()
+        }
+      })())
+
+      return new Response(stream)
+    }
+
+    if (entry.type !== 'file' && entry.type !== 'raw' && entry.type !== 'identity') {
       throw new Error('unsupported entry type')
     }
 
@@ -92,3 +114,5 @@ async function requestHandler (request, env, ctx) {
     throw err
   }
 }
+
+const esc = unsafe => unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;')
