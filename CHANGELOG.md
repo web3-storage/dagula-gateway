@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/web3-storage/dagula-gateway/compare/v1.2.1...v1.2.2) (2022-08-03)
+
+
+### Bug Fixes
+
+* use native crypto ([ecdc9c8](https://github.com/web3-storage/dagula-gateway/commit/ecdc9c81c4b434feca2bee9e84c5368b1d7545fb))
+
 ## [1.2.1](https://github.com/web3-storage/dagula-gateway/compare/v1.2.0...v1.2.1) (2022-08-03)
 
 
