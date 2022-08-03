@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/web3-storage/dagula-gateway/compare/v1.1.0...v1.2.0) (2022-08-03)
+
+
+### Features
+
+* add simple directory listing ([97ffee7](https://github.com/web3-storage/dagula-gateway/commit/97ffee78abd0ac2300a31e1684283e2730e446c2))
+
 ## [1.1.0](https://github.com/web3-storage/dagula-gateway/compare/v1.0.1...v1.1.0) (2022-07-26)
 
 
