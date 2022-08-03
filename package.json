@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "standard",
     "prebuild": "tsc",
-    "build": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/worker.js",
+    "build": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/index.js",
     "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m",
     "test": "npm run build && ava"
   },

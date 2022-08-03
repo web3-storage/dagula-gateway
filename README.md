@@ -2,7 +2,7 @@
 
 > An IPFS Gateway for Cloudflare Workers that uses Dagula.
 
-![Dagula Gateway Diagram](https://dweb.link/ipfs/bafybeiahj2pavafqxvxhmdezdp44g4lmquhkkwlyntubc5byir6o6wpe6y/dagula-gateway.png)
+![Dagula Gateway Diagram](https://dweb.link/ipfs/bafybeiheilouffa22iufkgebssavr7rkdpuuihu7nf5fsz7vjvoyrn7fky/dagula-gateway.png)
 
 ## Local setup
 
