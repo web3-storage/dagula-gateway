@@ -51,7 +51,7 @@ export function withErrorHandler (handler) {
 export function withHttpGet (handler) {
   return (request, env, ctx) => {
     if (request.method !== 'GET') {
-      throw new Error('method not allowed', { status: 405 })
+      throw Object.assign(new Error('method not allowed'), { status: 405 })
     }
     return handler(request, env, ctx)
   }
@@ -66,7 +66,7 @@ export function withIpfsPath (handler) {
   return (request, env, ctx) => {
     const path = new URL(request.url).pathname
     if (!path.startsWith('/ipfs/')) {
-      throw new Error('not found', { status: 404 })
+      throw Object.assign(new Error('not found'), { status: 404 })
     }
     ctx.ipfsPath = decodeURI(path.slice(6))
     return handler(request, env, ctx)
