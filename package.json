@@ -1,6 +1,6 @@
 {
   "name": "dagula-gateway",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An IPFS Gateway for Cloudflare Workers that uses Dagula.",
   "main": "src/worker.js",
   "type": "module",
