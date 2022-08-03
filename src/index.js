@@ -51,7 +51,7 @@ async function requestHandler (request, env, ctx) {
         try {
           for await (const { cid, path, name } of entry.content()) {
             controller.reset()
-            yield fromString(`<li>${cid} <a href="${esc(path)}">${esc(name)}</a></li>\n`)
+            yield fromString(`<li>${cid} <a href="/ipfs/${esc(path)}">${esc(name)}</a></li>\n`)
           }
           yield fromString('</ul>')
         } catch (err) {
