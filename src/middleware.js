@@ -2,6 +2,7 @@
 import { createLibp2p } from 'libp2p'
 import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
+import { createRSAPeerId } from '@libp2p/peer-id-factory'
 
 /** @typedef {(h: Handler) => Handler} Middleware */
 
@@ -81,11 +82,9 @@ export function withLibp2p (handler) {
     let node
     try {
       const { NOISE } = await import('@chainsafe/libp2p-noise')
-      const wsTransport = new WebSockets()
-      // TODO: use NODE ED25519 to generate key
-      // https://developers.cloudflare.com/workers/runtime-apis/web-crypto/
       node = await createLibp2p({
-        transports: [wsTransport],
+        peerId: await createRSAPeerId({ bits: 1024 }),
+        transports: [new WebSockets()],
         streamMuxers: [new Mplex({ maxMsgSize: 4 * 1024 * 1024 })],
         connectionEncryption: [NOISE]
       })
