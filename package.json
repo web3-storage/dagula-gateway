@@ -26,7 +26,7 @@
     "@chainsafe/libp2p-noise": "^7.0.1",
     "@libp2p/mplex": "^1.2.1",
     "cf-libp2p-ws-transport": "^1.1.0",
-    "dagula": "^2.0.3",
+    "dagula": "^2.0.4",
     "ipfs-core": "^0.15.4",
     "libp2p": "^0.37.3",
     "magic-bytes.js": "^1.0.12",
