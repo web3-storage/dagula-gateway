@@ -8,7 +8,7 @@
     "lint": "standard",
     "prebuild": "tsc",
     "build": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/index.js",
-    "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m",
+    "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m --global-timers",
     "test": "npm run build && ava"
   },
   "keywords": [
