@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/web3-storage/dagula-gateway/compare/v1.0.1...v1.1.0) (2022-07-26)
+
+
+### Features
+
+* content type detection ([4bce375](https://github.com/web3-storage/dagula-gateway/commit/4bce37515a43bb3bdaa29a6acb1e295f95795afb)), closes [#6](https://github.com/web3-storage/dagula-gateway/issues/6)
+
 ## [1.0.1](https://github.com/web3-storage/dagula-gateway/compare/v1.0.0...v1.0.1) (2022-07-22)
 
 
