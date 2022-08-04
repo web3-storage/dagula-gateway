@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "standard",
     "build": "npm run build:templates && npm run build:bundle",
-    "build:templates": "handlebars templates/*.handlebars -c handlebars/runtime.js -f templates/bundle.cjs",
+    "build:templates": "handlebars templates/*.handlebars -c @web3-storage/handlebars/runtime.js -f templates/bundle.cjs",
     "build:bundle": "esbuild --format=esm --bundle --outfile=./dist/worker.mjs ./src/index.js",
     "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m --global-timers",
     "test": "npm run build && ava"
@@ -27,10 +27,10 @@
     "@chainsafe/libp2p-noise": "^7.0.1",
     "@libp2p/mplex": "^1.2.1",
     "@libp2p/peer-id-factory": "^1.0.17",
+    "@web3-storage/handlebars": "^1.0.0",
     "bytes": "^3.1.2",
     "cf-libp2p-ws-transport": "^1.1.0",
     "dagula": "^2.0.5",
-    "handlebars": "^4.7.7",
     "ipfs-core": "^0.15.4",
     "libp2p": "^0.37.3",
     "magic-bytes.js": "^1.0.12",

@@ -1,6 +1,6 @@
 /* eslint-env browser */
 import { fromString } from 'uint8arrays/from-string'
-import Handlebars from 'handlebars/runtime.js'
+import Handlebars from '@web3-storage/handlebars/runtime.js'
 import bytes from 'bytes'
 import '../../templates/bundle.cjs'
 import { toReadable } from '../streams.js'
