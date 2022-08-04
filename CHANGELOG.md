@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/web3-storage/dagula-gateway/compare/v1.3.0...v1.3.1) (2022-08-04)
+
+
+### Bug Fixes
+
+* handlebars dep ([fc808e8](https://github.com/web3-storage/dagula-gateway/commit/fc808e83fd6412756b4ef5c83722725830bb3477))
+
 ## [1.3.0](https://github.com/web3-storage/dagula-gateway/compare/v1.2.3...v1.3.0) (2022-08-04)
 
 
