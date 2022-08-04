@@ -36,17 +36,15 @@ export async function handleUnixfsDir (request, env, ctx) {
   const entryPath = p => isSubdomain ? p.split('/').slice(1).join('/') : `/ipfs/${p}`
 
   const stream = toReadable((async function * () {
-    const dirEntryPathParts = entry.path.split('/')
+    const parts = entry.path.split('/')
     yield fromString(
       Handlebars.templates['unixfs-dir-header']({
         path: entryPath(entry.path),
         name: entry.name,
         hash: entry.cid.toString(),
         size: entry.size,
-        backLink: dirEntryPathParts.length > 1
-          ? entryPath(dirEntryPathParts.slice(0, -1).join('/'))
-          : '',
-        breadcrumbs: ['ipfs', ...dirEntryPathParts].map((name, i, parts) => {
+        backLink: parts.length > 1 ? entryPath(parts.slice(0, -1).join('/')) : '',
+        breadcrumbs: ['ipfs', ...parts].map((name, i, parts) => {
           const path = i > 0 ? entryPath(parts.slice(1, i + 1).join('/')) : null
           return { name, path }
         })
