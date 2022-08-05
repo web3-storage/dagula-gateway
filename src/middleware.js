@@ -1,10 +1,13 @@
 /* eslint-env browser */
+/* global TransformStream */
 import { createLibp2p } from 'libp2p'
 import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
 import { createRSAPeerId } from '@libp2p/peer-id-factory'
+import { TimeoutController } from 'timeout-abort-controller'
+import { Dagula } from 'dagula'
 
-/** @typedef {(h: Handler) => Handler} Middleware */
+/** @typedef {(h: import('./bindings.d').Handler) => import('./bindings.d').Handler} Middleware */
 
 /**
  * Adds CORS headers to the response.
@@ -90,11 +93,67 @@ export function withLibp2p (handler) {
       })
       await node.start()
       ctx.libp2p = node
-      return await handler(request, env, ctx)
+      const response = await handler(request, env, ctx)
+      if (!response.body) {
+        node.stop()
+        return response
+      }
+      return new Response(
+        response.body.pipeThrough(
+          new TransformStream({
+            flush () {
+              // console.log('stopping libp2p')
+              node.stop()
+            }
+          })
+        ),
+        response
+      )
     } catch (err) {
       if (node) node.stop()
       throw err
     }
+  }
+}
+
+/**
+ * Creates a middleware that adds an TimeoutController (an AbortController) to
+ * the context that times out after the passed milliseconds. Consumers can
+ * optionally call `.reset()` on the controller to restart the timeout.
+ * @param {number} timeout Timeout in milliseconds.
+ */
+export function createWithTimeoutController (timeout) {
+  /** @type {Middleware} */
+  return handler => {
+    return async (request, env, ctx) => {
+      const controller = ctx.timeoutController = new TimeoutController(timeout)
+      const response = await handler(request, env, ctx)
+      if (!response.body) return response
+      return new Response(
+        response.body.pipeThrough(
+          new TransformStream({
+            flush () {
+              // console.log('clearing timeout controller')
+              controller.clear()
+            }
+          })
+        ),
+        response
+      )
+    }
+  }
+}
+
+/**
+ * Creates a new Dagula instance and adds it to the context.
+ * @type {Middleware}
+ */
+export function withDagula (handler) {
+  return (request, env, ctx) => {
+    const { libp2p } = ctx
+    if (!libp2p) throw new Error('missing libp2p host')
+    ctx.dagula = new Dagula(libp2p, env.REMOTE_PEER)
+    return handler(request, env, ctx)
   }
 }
 

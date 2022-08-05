@@ -1,12 +1,13 @@
 /* eslint-env browser */
-import { Dagula } from 'dagula'
-import { TimeoutController } from 'timeout-abort-controller'
+
 import {
   withCorsHeaders,
   withErrorHandler,
   withHttpGet,
   withCidPath,
   withLibp2p,
+  createWithTimeoutController,
+  withDagula,
   composeMiddleware
 } from './middleware.js'
 import { handleUnixfs, handleBlock, handleCar } from './handlers/index.js'
@@ -20,12 +21,15 @@ const TIMEOUT = 30_000
 export default {
   /** @type {Handler} */
   async fetch (request, env, ctx) {
+    console.log(request.method, request.url)
     const middleware = composeMiddleware(
       withCorsHeaders,
       withErrorHandler,
       withHttpGet,
       withCidPath,
-      withLibp2p
+      withLibp2p,
+      withDagula,
+      createWithTimeoutController(TIMEOUT)
     )
     return middleware(requestHandler)(request, env, ctx)
   }
@@ -33,25 +37,17 @@ export default {
 
 /** @type {Handler} */
 async function requestHandler (request, env, ctx) {
-  const { cidPath, libp2p } = ctx
+  const { cidPath } = ctx
   if (!cidPath) throw new Error('missing IPFS path')
-  if (!libp2p) throw new Error('missing libp2p host')
 
-  ctx.dagula = new Dagula(libp2p, env.REMOTE_PEER)
-  const controller = ctx.timeoutController = new TimeoutController(TIMEOUT)
-  try {
-    console.log('get', cidPath, 'from', env.REMOTE_PEER)
-    const { searchParams } = new URL(request.url)
+  console.log('get', cidPath, 'from', env.REMOTE_PEER)
+  const { searchParams } = new URL(request.url)
 
-    if (searchParams.get('format') === 'raw') {
-      return await handleBlock(request, env, ctx)
-    }
-    if (searchParams.get('format') === 'car') {
-      return await handleCar(request, env, ctx)
-    }
-    return await handleUnixfs(request, env, ctx)
-  } catch (err) {
-    controller.clear()
-    throw err
+  if (searchParams.get('format') === 'raw') {
+    return await handleBlock(request, env, ctx)
   }
+  if (searchParams.get('format') === 'car') {
+    return await handleCar(request, env, ctx)
+  }
+  return await handleUnixfs(request, env, ctx)
 }

@@ -26,7 +26,6 @@ export async function handleCar (request, env, ctx) {
   // datastore in non-deterministic order.
   const etag = `W/"${cid}.car"`
   if (request.headers.get('If-None-Match') === etag) {
-    await libp2p.stop()
     return new Response(null, { status: 304 })
   }
 
@@ -38,10 +37,9 @@ export async function handleCar (request, env, ctx) {
         await writer.put(block)
       }
     } catch (err) {
-      console.error('writing CAR', err)
+      console.error('writing CAR', err.stack)
     } finally {
       await writer.close()
-      await libp2p.stop()
     }
   })()
 

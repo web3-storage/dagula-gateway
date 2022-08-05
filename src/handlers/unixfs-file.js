@@ -14,7 +14,6 @@ export async function handleUnixfsFile (request, env, ctx) {
 
   const etag = `"${entry.cid}"`
   if (request.headers.get('If-None-Match') === etag) {
-    await libp2p.stop()
     return new Response(null, { status: 304 })
   }
 
@@ -29,7 +28,6 @@ export async function handleUnixfsFile (request, env, ctx) {
   const contentIterator = entry.content()[Symbol.asyncIterator]()
   const { done, value: firstChunk } = await contentIterator.next()
   if (done || !firstChunk.length) {
-    await libp2p.stop()
     return new Response(null, { status: 204, headers })
   }
 
@@ -50,10 +48,6 @@ export async function handleUnixfsFile (request, env, ctx) {
     } catch (err) {
       console.error(err.stack)
       throw err
-    } finally {
-      controller.clear()
-      // TODO: need a good way to hook into this from withLibp2p middleware
-      await libp2p.stop()
     }
   })())
 

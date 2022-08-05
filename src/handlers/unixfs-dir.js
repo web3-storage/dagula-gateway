@@ -49,7 +49,6 @@ export async function handleUnixfsDir (request, env, ctx) {
   }
 
   if (request.method === 'HEAD') {
-    await libp2p.stop()
     return new Response(null, { headers })
   }
 
@@ -90,10 +89,6 @@ export async function handleUnixfsDir (request, env, ctx) {
     } catch (err) {
       console.error(err.stack)
       throw err
-    } finally {
-      controller.clear()
-      // TODO: need a good way to hook into this from withLibp2p middleware
-      await libp2p.stop()
     }
   })())
 
