@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/web3-storage/dagula-gateway/compare/v1.3.1...v1.4.0) (2022-08-05)
+
+
+### Features
+
+* serve index.html if found in directory ([af9c66b](https://github.com/web3-storage/dagula-gateway/commit/af9c66baa40a697d0eeaedb84523428325f5364c))
+
+
+### Bug Fixes
+
+* better unixfs file validation ([e67fffe](https://github.com/web3-storage/dagula-gateway/commit/e67fffea302b69adf3857efe8508b55136088406))
+
 ## [1.3.1](https://github.com/web3-storage/dagula-gateway/compare/v1.3.0...v1.3.1) (2022-08-04)
 
 
