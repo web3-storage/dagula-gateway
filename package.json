@@ -30,7 +30,7 @@
     "@web3-storage/handlebars": "^1.0.0",
     "bytes": "^3.1.2",
     "cf-libp2p-ws-transport": "^1.1.0",
-    "dagula": "^2.0.5",
+    "dagula": "^2.0.6",
     "ipfs-core": "^0.15.4",
     "libp2p": "^0.37.3",
     "magic-bytes.js": "^1.0.12",
