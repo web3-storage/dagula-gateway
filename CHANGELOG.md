@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/web3-storage/dagula-gateway/compare/v1.4.0...v1.5.0) (2022-08-05)
+
+
+### Features
+
+* block and CAR support via  querystring ([5e90d57](https://github.com/web3-storage/dagula-gateway/commit/5e90d57616e82f50c5853c2cb47a994e6689902b))
+
+
+### Bug Fixes
+
+* stop libp2p when response consumed ([1002c8f](https://github.com/web3-storage/dagula-gateway/commit/1002c8f4b70a852aee197efb3ba8b2fd3446bbbc))
+
 ## [1.4.0](https://github.com/web3-storage/dagula-gateway/compare/v1.3.1...v1.4.0) (2022-08-05)
 
 
