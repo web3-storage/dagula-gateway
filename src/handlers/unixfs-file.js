@@ -6,6 +6,9 @@ import { detectContentType } from '../mime.js'
 export async function handleUnixfsFile (request, env, ctx) {
   const { unixfsEntry: entry, timeoutController: controller, libp2p } = ctx
   if (!entry) throw new Error('missing unixfs entry')
+  if (entry.type !== 'file' && entry.type !== 'raw' && entry.type !== 'identity') {
+    throw new Error('non unixfs file entry')
+  }
   if (!controller) throw new Error('missing timeout controller')
   if (!libp2p) throw new Error('missing libp2p node')
 
