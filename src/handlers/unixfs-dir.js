@@ -43,6 +43,16 @@ export async function handleUnixfsDir (request, env, ctx) {
     if (err.code !== 'ERR_NOT_FOUND') throw err
   }
 
+  const headers = {
+    'Content-Type': 'text/html',
+    Etag: `"DirIndex-dagula@${env.VERSION || '0.0.0'}_CID-${entry.cid}"`
+  }
+
+  if (request.method === 'HEAD') {
+    await libp2p.stop()
+    return new Response(null, { headers })
+  }
+
   const isSubdomain = new URL(request.url).hostname.includes('.ipfs.')
   /** @param {string} p CID path like "<cid>[/optional/path]" */
   const entryPath = p => isSubdomain ? p.split('/').slice(1).join('/') : `/ipfs/${p}`
@@ -83,9 +93,9 @@ export async function handleUnixfsDir (request, env, ctx) {
     } finally {
       controller.clear()
       // TODO: need a good way to hook into this from withLibp2p middleware
-      libp2p.stop()
+      await libp2p.stop()
     }
   })())
 
-  return new Response(stream)
+  return new Response(stream, { headers })
 }

@@ -12,9 +12,16 @@ export async function handleUnixfsFile (request, env, ctx) {
   if (!controller) throw new Error('missing timeout controller')
   if (!libp2p) throw new Error('missing libp2p node')
 
+  const etag = `"${entry.cid}"`
+  if (request.headers.get('If-None-Match') === etag) {
+    await libp2p.stop()
+    return new Response(null, { status: 304 })
+  }
+
   /** @type {Record<string, string>} */
   const headers = {
-    etag: entry.cid.toString(),
+    Etag: etag,
+    'Cache-Control': 'public, max-age=29030400, immutable',
     'Content-Length': entry.size
   }
 
@@ -22,6 +29,7 @@ export async function handleUnixfsFile (request, env, ctx) {
   const contentIterator = entry.content()[Symbol.asyncIterator]()
   const { done, value: firstChunk } = await contentIterator.next()
   if (done || !firstChunk.length) {
+    await libp2p.stop()
     return new Response(null, { status: 204, headers })
   }
 
@@ -45,7 +53,7 @@ export async function handleUnixfsFile (request, env, ctx) {
     } finally {
       controller.clear()
       // TODO: need a good way to hook into this from withLibp2p middleware
-      libp2p.stop()
+      await libp2p.stop()
     }
   })())
 

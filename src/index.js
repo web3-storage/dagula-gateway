@@ -9,7 +9,7 @@ import {
   withLibp2p,
   composeMiddleware
 } from './middleware.js'
-import { handleUnixfs } from './handlers/unixfs.js'
+import { handleUnixfs, handleBlock, handleCar } from './handlers/index.js'
 // import { enable } from '@libp2p/logger'
 // enable('dag*')
 
@@ -41,7 +41,14 @@ async function requestHandler (request, env, ctx) {
   const controller = ctx.timeoutController = new TimeoutController(TIMEOUT)
   try {
     console.log('get', cidPath, 'from', env.REMOTE_PEER)
-    // TODO: support for format=raw and format=cbor
+    const { searchParams } = new URL(request.url)
+
+    if (searchParams.get('format') === 'raw') {
+      return await handleBlock(request, env, ctx)
+    }
+    if (searchParams.get('format') === 'car') {
+      return await handleCar(request, env, ctx)
+    }
     return await handleUnixfs(request, env, ctx)
   } catch (err) {
     controller.clear()

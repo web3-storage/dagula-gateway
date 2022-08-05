@@ -37,7 +37,7 @@ export function withErrorHandler (handler) {
     try {
       return await handler(request, env, ctx)
     } catch (err) {
-      console.error(err.stack)
+      if (!err.status || err.status >= 500) console.error(err.stack)
       const msg = env.DEBUG === 'true' ? err.stack : err.message
       return new Response(msg, { status: err.status || 500 })
     }
