@@ -13,9 +13,9 @@ export interface Environment {
 export interface Context {
   waitUntil(promise: Promise<void>): void
   /**
-   * Parsed IPFS path: '<cid>[/optional/path]'
+   * Parsed IPFS CID path: `<cid>[/optional/path]`
    */
-  ipfsPath?: string
+  cidPath?: string
   libp2p?: Libp2p
   dagula?: Dagula
   timeoutController?: TimeoutController

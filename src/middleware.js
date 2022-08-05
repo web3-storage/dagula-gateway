@@ -58,17 +58,17 @@ export function withHttpGet (handler) {
 }
 
 /**
- * Extracts an IPFS path ('<cid>[/optional/path]') from the request and stores
- * it on the context under `ipfsPath`.
+ * Extracts an IPFS CID path ('<cid>[/optional/path]') from the request and
+ * stores it on the context under `cidPath`.
  * @type {Middleware}
  */
-export function withIpfsPath (handler) {
+export function withCidPath (handler) {
   return (request, env, ctx) => {
     const path = new URL(request.url).pathname
     if (!path.startsWith('/ipfs/')) {
       throw Object.assign(new Error('not found'), { status: 404 })
     }
-    ctx.ipfsPath = decodeURI(path.slice(6))
+    ctx.cidPath = decodeURI(path.slice(6))
     return handler(request, env, ctx)
   }
 }

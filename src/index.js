@@ -5,7 +5,7 @@ import {
   withCorsHeaders,
   withErrorHandler,
   withHttpGet,
-  withIpfsPath,
+  withCidPath,
   withLibp2p,
   composeMiddleware
 } from './middleware.js'
@@ -24,7 +24,7 @@ export default {
       withCorsHeaders,
       withErrorHandler,
       withHttpGet,
-      withIpfsPath,
+      withCidPath,
       withLibp2p
     )
     return middleware(requestHandler)(request, env, ctx)
@@ -33,14 +33,14 @@ export default {
 
 /** @type {Handler} */
 async function requestHandler (request, env, ctx) {
-  const { ipfsPath, libp2p } = ctx
-  if (!ipfsPath) throw new Error('missing IPFS path')
+  const { cidPath, libp2p } = ctx
+  if (!cidPath) throw new Error('missing IPFS path')
   if (!libp2p) throw new Error('missing libp2p host')
 
   ctx.dagula = new Dagula(libp2p, env.REMOTE_PEER)
   const controller = ctx.timeoutController = new TimeoutController(TIMEOUT)
   try {
-    console.log('get', ipfsPath, 'from', env.REMOTE_PEER)
+    console.log('get', cidPath, 'from', env.REMOTE_PEER)
     // TODO: support for format=raw and format=cbor
     return await handleUnixfs(request, env, ctx)
   } catch (err) {

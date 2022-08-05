@@ -4,6 +4,7 @@ import Handlebars from '@web3-storage/handlebars/runtime.js'
 import bytes from 'bytes'
 import '../../templates/bundle.cjs'
 import { toReadable } from '../streams.js'
+import { handleUnixfsFile } from './unixfs-file.js'
 
 Handlebars.registerHelper('encodeURI', encodeURI)
 Handlebars.registerHelper('encodeURIComponent', encodeURIComponent)
@@ -25,11 +26,22 @@ const knownIcons = Object.fromEntries([
 
 /** @type {import('../bindings').Handler} */
 export async function handleUnixfsDir (request, env, ctx) {
-  const { unixfsEntry: entry, timeoutController: controller, libp2p } = ctx
+  const { unixfsEntry: entry, timeoutController: controller, libp2p, dagula, cidPath } = ctx
   if (!entry) throw new Error('missing unixfs entry')
   if (entry.type !== 'directory') throw new Error('non unixfs directory entry')
   if (!controller) throw new Error('missing timeout controller')
   if (!libp2p) throw new Error('missing libp2p node')
+  if (!dagula) throw new Error('missing dagula instance')
+
+  // serve index.html if directory contains one
+  try {
+    const indexPath = `${cidPath}${cidPath.endsWith('/') ? '' : '/'}index.html`
+    const fileEntry = await dagula.getUnixfs(indexPath)
+    ctx.unixfsEntry = fileEntry
+    return handleUnixfsFile(request, env, ctx)
+  } catch (err) {
+    if (err.code !== 'ERR_NOT_FOUND') throw err
+  }
 
   const isSubdomain = new URL(request.url).hostname.includes('.ipfs.')
   /** @param {string} p CID path like "<cid>[/optional/path]" */
