@@ -149,10 +149,10 @@ export function createWithTimeoutController (timeout) {
  * @type {Middleware}
  */
 export function withDagula (handler) {
-  return (request, env, ctx) => {
+  return async (request, env, ctx) => {
     const { libp2p } = ctx
     if (!libp2p) throw new Error('missing libp2p host')
-    ctx.dagula = new Dagula(libp2p, env.REMOTE_PEER)
+    ctx.dagula = await Dagula.fromNetwork(libp2p, { peer: env.REMOTE_PEER })
     return handler(request, env, ctx)
   }
 }
