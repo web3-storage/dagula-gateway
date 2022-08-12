@@ -6,6 +6,7 @@ import { Mplex } from '@libp2p/mplex'
 import { createRSAPeerId } from '@libp2p/peer-id-factory'
 import { TimeoutController } from 'timeout-abort-controller'
 import { Dagula } from 'dagula'
+import { BitswapFetcher } from 'dagula/bitswap-fetcher.js'
 
 /** @typedef {(h: import('./bindings.d').Handler) => import('./bindings.d').Handler} Middleware */
 
@@ -152,7 +153,34 @@ export function withDagula (handler) {
   return async (request, env, ctx) => {
     const { libp2p } = ctx
     if (!libp2p) throw new Error('missing libp2p host')
-    ctx.dagula = await Dagula.fromNetwork(libp2p, { peer: env.REMOTE_PEER })
+
+    const peer = env.REMOTE_PEER
+    const bitswap = new BitswapFetcher(async () => {
+      const { stream } = await libp2p.dialProtocol(peer, '/ipfs/bitswap/1.2.0', { lazy: true })
+      return stream
+    })
+
+    const cache = await caches.open('blocks')
+    const headers = { 'Cache-Control': 'public, max-age=2419200, immutable' }
+
+    /** @type {import('dagula').Blockstore} */
+    const blockstore = {
+      async get (cid) {
+        const cacheKey = new URL(`/ipfs/${cid}`, request.url).toString()
+        try {
+          const res = await cache.match(cacheKey)
+          if (res) return new Uint8Array(await res.arrayBuffer())
+        } catch (err) {
+          console.warn('failed to get cached block', err)
+        }
+        const block = await bitswap.get(cid)
+        cache.put(cacheKey, new Response(new Blob([block]), { headers }))
+          .catch(err => console.warn('failed to cache block', err))
+        return block
+      }
+    }
+
+    ctx.dagula = new Dagula(blockstore)
     return handler(request, env, ctx)
   }
 }
