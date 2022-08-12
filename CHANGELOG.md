@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/web3-storage/dagula-gateway/compare/v1.5.0...v1.6.0) (2022-08-10)
+
+
+### Features
+
+* use lazy multistream select ([87f8989](https://github.com/web3-storage/dagula-gateway/commit/87f8989f0080f0e0622c15935544b81e774c6fcc))
+
 ## [1.5.0](https://github.com/web3-storage/dagula-gateway/compare/v1.4.0...v1.5.0) (2022-08-05)
 
 
