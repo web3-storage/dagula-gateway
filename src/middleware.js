@@ -162,7 +162,7 @@ export function withDagula (handler) {
  * Otherwise proceeds to handler.
  * @type {Middleware}
  */
-export function withCdnGet (handler) {
+export function withCdnCache (handler) {
   return async (request, env, ctx) => {
     // Should skip cache if instructed by headers
     if ((request.headers.get('Cache-Control') || '').includes('no-cache')) {
