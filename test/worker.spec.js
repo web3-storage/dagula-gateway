@@ -1,16 +1,8 @@
-import test from 'ava'
 import { fromString, equals } from 'uint8arrays'
 import crypto from 'crypto'
-import { getMiniflare, getIpfs } from './helpers.js'
+import { test, getMiniflare, getIpfs } from './helpers.js'
 
-/**
- * @typedef {import('ava').ExecutionContext<{
- *   ipfs: import('ipfs-core').IPFS
- *   miniflare: import('miniflare').Miniflare
- * }>} ExecutionContext
- */
-
-test.beforeEach(async (/** @type {ExecutionContext} */ t) => {
+test.beforeEach(async (t) => {
   t.context.ipfs = await getIpfs()
   const { addresses } = await t.context.ipfs.id()
   const remotePeer = addresses.find(a => a.toString().includes('/ws'))?.toString()
@@ -18,7 +10,7 @@ test.beforeEach(async (/** @type {ExecutionContext} */ t) => {
   t.context.miniflare = getMiniflare({ REMOTE_PEER: remotePeer })
 })
 
-test('should fetch a small file', async (/** @type {ExecutionContext} */ t) => {
+test('should fetch a small file', async (t) => {
   const { ipfs, miniflare } = t.context
   const payload = `test${Date.now()}`
   const { cid } = await ipfs.add({ content: fromString(payload) })
@@ -30,7 +22,7 @@ test('should fetch a small file', async (/** @type {ExecutionContext} */ t) => {
   t.is(data, payload)
 })
 
-test('should fetch a large file of multiple blocks', async (/** @type {ExecutionContext} */ t) => {
+test('should fetch a large file of multiple blocks', async (t) => {
   const { ipfs, miniflare } = t.context
   const payload = crypto.randomBytes(1024 * 1024 * 2)
   const { cid } = await ipfs.add({ content: payload })
@@ -42,7 +34,7 @@ test('should fetch a large file of multiple blocks', async (/** @type {Execution
   t.true(equals(data, payload))
 })
 
-test('should set Content-Length header', async (/** @type {ExecutionContext} */ t) => {
+test('should set Content-Length header', async (t) => {
   const { ipfs, miniflare } = t.context
   const totalBytes = 32
   const payload = crypto.randomBytes(totalBytes)
@@ -55,7 +47,7 @@ test('should set Content-Length header', async (/** @type {ExecutionContext} */ 
   t.is(contentLength, totalBytes)
 })
 
-test('should set Content-Type header', async (/** @type {ExecutionContext} */ t) => {
+test('should set Content-Type header', async (t) => {
   const { ipfs, miniflare } = t.context
   const payload = `<!doctype html>\n<p>test${Date.now()}</p>`
   const { cid } = await ipfs.add({ path: 'test.html', content: payload }, { wrapWithDirectory: true })
@@ -67,6 +59,6 @@ test('should set Content-Type header', async (/** @type {ExecutionContext} */ t)
   t.is(contentType, 'text/html')
 })
 
-test.afterEach(async (/** @type {ExecutionContext} */ t) => {
+test.afterEach(async (t) => {
   await t.context.ipfs.stop()
 })
