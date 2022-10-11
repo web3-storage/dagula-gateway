@@ -1,3 +1,5 @@
+import anyTest from 'ava'
+
 import { Miniflare } from 'miniflare'
 import { create as createIpfs } from 'ipfs-core'
 import { createRepo } from 'ipfs-repo'
@@ -59,3 +61,14 @@ export function getIpfs () {
     preload: { enabled: false }
   })
 }
+
+/**
+ * @typedef {{
+ *   ipfs: import('ipfs-core').IPFS
+ *   miniflare: import('miniflare').Miniflare
+ * }} Context
+ *
+ * @typedef {import("ava").TestFn<Context>} TestFn
+ */
+
+export const test = /** @type {TestFn} */ (anyTest)
