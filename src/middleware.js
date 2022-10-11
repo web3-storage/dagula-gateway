@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/* global TransformStream */
+/* global TransformStream caches */
 import { createLibp2p } from 'libp2p'
 import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
@@ -158,9 +158,56 @@ export function withDagula (handler) {
 }
 
 /**
+ * Intercepts request if content cached by just returning cached response.
+ * Otherwise proceeds to handler.
+ * @type {Middleware}
+ */
+export function withCdnCache (handler) {
+  return async (request, env, ctx) => {
+    // Should skip cache if instructed by headers
+    if ((request.headers.get('Cache-Control') || '').includes('no-cache')) {
+      return handler(request, env, ctx)
+    }
+
+    let response
+    // Get from cache and return if existent
+    const cache = caches.default
+    response = await cache.match(request)
+    if (response) {
+      return response
+    }
+
+    response = await handler(request, env, ctx)
+    ctx.waitUntil(
+      putToCache(request, response, cache)
+    )
+
+    return response
+  }
+}
+
+/**
  * @param {...Middleware} middlewares
  * @returns {Middleware}
  */
 export function composeMiddleware (...middlewares) {
   return handler => middlewares.reduceRight((h, m) => m(h), handler)
+}
+
+const CF_CACHE_MAX_OBJECT_SIZE = 512 * Math.pow(1024, 2) // 512MB to bytes
+
+/**
+ * Put received response to cache.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ * @param {Cache} cache
+ */
+async function putToCache (request, response, cache) {
+  const contentLengthMb = Number(response.headers.get('content-length'))
+
+  // Cache request in Cloudflare CDN if smaller than CF_CACHE_MAX_OBJECT_SIZE
+  if (contentLengthMb <= CF_CACHE_MAX_OBJECT_SIZE) {
+    await cache.put(request, response.clone())
+  }
 }

@@ -4,6 +4,7 @@ import {
   withCorsHeaders,
   withErrorHandler,
   withHttpGet,
+  withCdnCache,
   withCidPath,
   withLibp2p,
   createWithTimeoutController,
@@ -26,6 +27,7 @@ export default {
       withCorsHeaders,
       withErrorHandler,
       withHttpGet,
+      withCdnCache,
       withCidPath,
       withLibp2p,
       withDagula,
@@ -40,9 +42,7 @@ async function requestHandler (request, env, ctx) {
   const { cidPath } = ctx
   if (!cidPath) throw new Error('missing IPFS path')
 
-  console.log('get', cidPath, 'from', env.REMOTE_PEER)
   const { searchParams } = new URL(request.url)
-
   if (searchParams.get('format') === 'raw') {
     return await handleBlock(request, env, ctx)
   }
