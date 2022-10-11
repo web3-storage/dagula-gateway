@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/* global TransformStream */
+/* global TransformStream caches */
 import { createLibp2p } from 'libp2p'
 import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
@@ -153,6 +153,29 @@ export function withDagula (handler) {
     const { libp2p } = ctx
     if (!libp2p) throw new Error('missing libp2p host')
     ctx.dagula = new Dagula(libp2p, env.REMOTE_PEER)
+    return handler(request, env, ctx)
+  }
+}
+
+/**
+ * Intercepts request if content cached by just returning cached response.
+ * Otherwise proceeds to handler.
+ * @type {Middleware}
+ */
+export function withCdnGet (handler) {
+  return async (request, env, ctx) => {
+    // Should skip cache if instructed by headers
+    if ((request.headers.get('Cache-Control') || '').includes('no-cache')) {
+      return handler(request, env, ctx)
+    }
+
+    // Get from cache and return if existent
+    const cache = caches.default
+    const response = await cache.match(request)
+    if (response) {
+      return response
+    }
+
     return handler(request, env, ctx)
   }
 }
