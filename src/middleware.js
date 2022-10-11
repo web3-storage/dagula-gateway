@@ -169,14 +169,20 @@ export function withCdnCache (handler) {
       return handler(request, env, ctx)
     }
 
+    let response
     // Get from cache and return if existent
     const cache = caches.default
-    const response = await cache.match(request)
+    response = await cache.match(request)
     if (response) {
       return response
     }
 
-    return handler(request, env, ctx)
+    response = await handler(request, env, ctx)
+    ctx.waitUntil(
+      putToCache(request, response, cache)
+    )
+
+    return response
   }
 }
 
@@ -186,4 +192,22 @@ export function withCdnCache (handler) {
  */
 export function composeMiddleware (...middlewares) {
   return handler => middlewares.reduceRight((h, m) => m(h), handler)
+}
+
+const CF_CACHE_MAX_OBJECT_SIZE = 512 * Math.pow(1024, 2) // 512MB to bytes
+
+/**
+ * Put received response to cache.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ * @param {Cache} cache
+ */
+async function putToCache (request, response, cache) {
+  const contentLengthMb = Number(response.headers.get('content-length'))
+
+  // Cache request in Cloudflare CDN if smaller than CF_CACHE_MAX_OBJECT_SIZE
+  if (contentLengthMb <= CF_CACHE_MAX_OBJECT_SIZE) {
+    await cache.put(request, response.clone())
+  }
 }
