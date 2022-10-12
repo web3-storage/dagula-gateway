@@ -48,6 +48,22 @@ export function withErrorHandler (handler) {
 }
 
 /**
+ * Validates the request does not contain unsupported features.
+ * Returns 501 Not Implemented in case it has.
+ * @type {Middleware}
+ */
+export function withUnsupportedFeaturesHandler (handler) {
+  return (request, env, ctx) => {
+    // Range request https://github.com/web3-storage/dagula-gateway/issues/3
+    if (request.headers.get('range')) {
+      throw Object.assign(new Error('Not Implemented'), { status: 501 })
+    }
+
+    return handler(request, env, ctx)
+  }
+}
+
+/**
  * Validates the request uses a HTTP GET method.
  * @type {Middleware}
  */

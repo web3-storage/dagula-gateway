@@ -3,6 +3,7 @@
 import {
   withCorsHeaders,
   withErrorHandler,
+  withUnsupportedFeaturesHandler,
   withHttpGet,
   withCdnCache,
   withCidPath,
@@ -26,6 +27,7 @@ export default {
     const middleware = composeMiddleware(
       withCorsHeaders,
       withErrorHandler,
+      withUnsupportedFeaturesHandler,
       withHttpGet,
       withCdnCache,
       withCidPath,
