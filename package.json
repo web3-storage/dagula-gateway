@@ -5,10 +5,9 @@
   "main": "src/worker.js",
   "type": "module",
   "scripts": {
+    "start": "npm run dev",
     "lint": "standard",
-    "build": "npm run build:templates && npm run build:bundle",
-    "build:templates": "handlebars templates/*.handlebars -c @web3-storage/handlebars/runtime.js -f templates/bundle.cjs",
-    "build:bundle": "node build.js",
+    "build": "node build.js",
     "dev": "npm run build && miniflare dist/worker.mjs --watch --debug -m --global-timers",
     "test": "npm run build && ava"
   },
@@ -28,17 +27,13 @@
     "@ipld/car": "^4.1.4",
     "@libp2p/mplex": "^1.2.1",
     "@libp2p/peer-id-factory": "^1.0.17",
-    "@web3-storage/handlebars": "^1.0.0",
+    "@web3-storage/gateway-lib": "^1.2.1",
     "@web3-storage/multistream-select": "^1.0.1",
-    "bytes": "^3.1.2",
     "cf-libp2p-ws-transport": "^1.1.0",
-    "dagula": "^3.0.0",
+    "dagula": "^4.1.0",
     "ipfs-core": "^0.15.4",
     "libp2p": "^0.37.3",
-    "magic-bytes.js": "^1.0.12",
-    "mrmime": "^1.0.1",
-    "multiformats": "^9.7.0",
-    "timeout-abort-controller": "^3.0.0"
+    "multiformats": "^9.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.14.1",
@@ -60,5 +55,10 @@
   "bugs": {
     "url": "https://github.com/web3-storage/dagula-gateway/issues"
   },
-  "homepage": "https://github.com/web3-storage/dagula-gateway#readme"
+  "homepage": "https://github.com/web3-storage/dagula-gateway#readme",
+  "standard": {
+    "ignore": [
+      "*.ts"
+    ]
+  }
 }
