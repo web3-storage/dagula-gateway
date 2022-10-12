@@ -59,6 +59,20 @@ test('should set Content-Type header', async (t) => {
   t.is(contentType, 'text/html')
 })
 
+test('should fail to request with unsupported features', async (t) => {
+  const { ipfs, miniflare } = t.context
+  const payload = `test${Date.now()}`
+  const { cid } = await ipfs.add({ content: fromString(payload) })
+
+  // Range request
+  const resRange = await miniflare.dispatchFetch(`http://localhost:8787/ipfs/${cid}`, {
+    headers: {
+      range: 'bytes=0-10'
+    }
+  })
+  t.is(501, resRange.status)
+})
+
 test.afterEach(async (t) => {
   await t.context.ipfs.stop()
 })
