@@ -3,34 +3,40 @@
 import {
   withCorsHeaders,
   withErrorHandler,
-  withUnsupportedFeaturesHandler,
   withHttpGet,
   withCdnCache,
-  withCidPath,
-  withLibp2p,
+  withParsedIpfsUrl,
   createWithTimeoutController,
-  withDagula,
   composeMiddleware
+} from '@web3-storage/gateway-lib/middleware'
+import { handleUnixfs, handleBlock, handleCar } from '@web3-storage/gateway-lib/handlers'
+import {
+  withUnsupportedFeaturesHandler,
+  withLibp2p,
+  withDagula
 } from './middleware.js'
-import { handleUnixfs, handleBlock, handleCar } from './handlers/index.js'
 // import { enable } from '@libp2p/logger'
 // enable('dag*')
 
-/** @typedef {import('./bindings').Handler} Handler */
+/**
+ * @typedef {import('./bindings').Environment} Environment
+ * @typedef {import('@web3-storage/gateway-lib').IpfsUrlContext} IpfsUrlContext
+ * @typedef {import('@web3-storage/gateway-lib').DagulaContext} DagulaContext
+ */
 
 const TIMEOUT = 30_000
 
 export default {
-  /** @type {Handler} */
+  /** @type {import('@web3-storage/gateway-lib').Handler<import('@web3-storage/gateway-lib').Context, import('./bindings').Environment>} */
   async fetch (request, env, ctx) {
     console.log(request.method, request.url)
     const middleware = composeMiddleware(
+      withCdnCache,
       withCorsHeaders,
       withErrorHandler,
       withUnsupportedFeaturesHandler,
       withHttpGet,
-      withCdnCache,
-      withCidPath,
+      withParsedIpfsUrl,
       withLibp2p,
       withDagula,
       createWithTimeoutController(TIMEOUT)
@@ -39,16 +45,15 @@ export default {
   }
 }
 
-/** @type {Handler} */
+/** @type {import('@web3-storage/gateway-lib').Handler<DagulaContext & IpfsUrlContext, Environment>} */
 async function requestHandler (request, env, ctx) {
-  const { cidPath } = ctx
-  if (!cidPath) throw new Error('missing IPFS path')
+  const { headers } = request
+  const { searchParams } = ctx
 
-  const { searchParams } = new URL(request.url)
-  if (searchParams.get('format') === 'raw') {
+  if (searchParams.get('format') === 'raw' || headers.get('Accept') === 'application/vnd.ipld.raw') {
     return await handleBlock(request, env, ctx)
   }
-  if (searchParams.get('format') === 'car') {
+  if (searchParams.get('format') === 'car' || headers.get('Accept') === 'application/vnd.ipld.car') {
     return await handleCar(request, env, ctx)
   }
   return await handleUnixfs(request, env, ctx)

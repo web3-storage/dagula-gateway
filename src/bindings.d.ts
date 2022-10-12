@@ -1,7 +1,5 @@
-import type { TimeoutController } from 'timeout-abort-controller'
-import type { UnixFSEntry } from 'ipfs-unixfs-exporter'
-import type { Dagula } from 'dagula'
 import type { Libp2p } from 'libp2p'
+import type { Context } from '@web3-storage/gateway-lib'
 
 export {}
 
@@ -10,18 +8,6 @@ export interface Environment {
   DEBUG: string
 }
 
-export interface Context {
-  waitUntil(promise: Promise<void>): void
-  /**
-   * Parsed IPFS CID path: `<cid>[/optional/path]`
-   */
-  cidPath?: string
-  libp2p?: Libp2p
-  dagula?: Dagula
-  timeoutController?: TimeoutController
-  unixfsEntry?: UnixFSEntry
-}
-
-export interface Handler {
-  (request: Request, env: Environment, ctx: Context): Promise<Response>
+export interface Libp2pContext extends Context {
+  libp2p: Libp2p
 }
