@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0](https://github.com/web3-storage/dagula-gateway/compare/v1.6.0...v1.7.0) (2022-10-12)
+
+
+### Features
+
+* integrate gateway-lib ([#27](https://github.com/web3-storage/dagula-gateway/issues/27)) ([71cfb8e](https://github.com/web3-storage/dagula-gateway/commit/71cfb8e327535c47fe4084930883e1389cb3502d))
+
+
+### Bug Fixes
+
+* add 501 error not implemented for range requests ([#26](https://github.com/web3-storage/dagula-gateway/issues/26)) ([b1f8249](https://github.com/web3-storage/dagula-gateway/commit/b1f8249c9ce1fcc2941188572572b8a8d910baf6))
+* add top level request cache ([#23](https://github.com/web3-storage/dagula-gateway/issues/23)) ([ecd62e9](https://github.com/web3-storage/dagula-gateway/commit/ecd62e999834f095a98e14e326d00fddf412e623))
+
 ## [1.6.0](https://github.com/web3-storage/dagula-gateway/compare/v1.5.0...v1.6.0) (2022-08-10)
 
 
