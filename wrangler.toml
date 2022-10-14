@@ -1,10 +1,11 @@
 name = "dagula-gateway"
-main = "./dist/worker.mjs"
+main = "./dist/worker.js"
 compatibility_date = "2022-07-20"
 compatibility_flags = [
   "streams_enable_constructors",
   "transformstream_enable_standard_constructor"
 ]
+no_bundle = true
 
 [build]
 command = "npm run build"
@@ -14,14 +15,26 @@ command = "npm run build"
 account_id = "fffa4b4363a7e5250af8357087263b3a"
 route = "dagula.dag.haus"
 
+[env.production.vars]
+DEBUG = "false"
+ENV = "production"
+
 # Staging!
 [env.staging]
 account_id = "fffa4b4363a7e5250af8357087263b3a"
 route = "dagula-staging.dag.haus"
 
+[env.staging.vars]
+DEBUG = "true"
+ENV = "staging"
+
 # Test!
 [env.test]
 workers_dev = true
+
+[env.test.vars]
+DEBUG = "true"
+ENV = "test"
 
 [env.alanshaw]
 workers_dev = true
@@ -29,3 +42,4 @@ account_id = "4fe12d085474d33bdcfd8e9bed4d8f95"
 
 [env.alanshaw.vars]
 DEBUG = "true"
+ENV = "dev"

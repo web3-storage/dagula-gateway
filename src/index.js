@@ -2,7 +2,6 @@
 
 import {
   withCorsHeaders,
-  withErrorHandler,
   withHttpGet,
   withCdnCache,
   withParsedIpfsUrl,
@@ -12,6 +11,7 @@ import {
 import { handleUnixfs, handleBlock, handleCar } from '@web3-storage/gateway-lib/handlers'
 import {
   withUnsupportedFeaturesHandler,
+  withErrorMonitoringHandler,
   withLibp2p,
   withDagula
 } from './middleware.js'
@@ -29,11 +29,10 @@ const TIMEOUT = 30_000
 export default {
   /** @type {import('@web3-storage/gateway-lib').Handler<import('@web3-storage/gateway-lib').Context, import('./bindings').Environment>} */
   async fetch (request, env, ctx) {
-    console.log(request.method, request.url)
     const middleware = composeMiddleware(
       withCdnCache,
       withCorsHeaders,
-      withErrorHandler,
+      withErrorMonitoringHandler,
       withUnsupportedFeaturesHandler,
       withHttpGet,
       withParsedIpfsUrl,

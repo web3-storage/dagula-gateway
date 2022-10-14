@@ -1,11 +1,14 @@
 /* eslint-env browser */
-/* global TransformStream */
+/* global TransformStream SENTRY_RELEASE */
 import { createLibp2p } from 'libp2p'
 import { WebSockets } from 'cf-libp2p-ws-transport'
 import { Mplex } from '@libp2p/mplex'
 import { createRSAPeerId } from '@libp2p/peer-id-factory'
 import { Dagula } from 'dagula'
 import { HttpError } from '@web3-storage/gateway-lib/util'
+import Toucan from 'toucan-js'
+
+import pkg from '../package.json'
 
 /**
  * @typedef {import('./bindings').Environment} Environment
@@ -13,6 +16,26 @@ import { HttpError } from '@web3-storage/gateway-lib/util'
  * @typedef {import('./bindings').Libp2pContext} Libp2pContext
  * @typedef {import('@web3-storage/gateway-lib').DagulaContext} DagulaContext
  */
+
+/**
+ * Adds monitoring for relevant errors.
+ * @type {import('@web3-storage/gateway-lib').Middleware<Context>}
+ */
+export function withErrorMonitoringHandler (handler) {
+  return async (request, env, ctx) => {
+    try {
+      return await handler(request, env, ctx)
+    } catch (/** @type {any} */ err) {
+      if (!err.status || err.status >= 500) {
+        // @ts-ignore conflict between Environment
+        const sentry = getSentry(request, env, ctx)
+        sentry && sentry.captureException(err)
+      }
+      const msg = env.DEBUG === 'true' ? err.stack : err.message
+      return new Response(msg, { status: err.status || 500 })
+    }
+  }
+}
 
 /**
  * Validates the request does not contain unsupported features.
@@ -80,4 +103,33 @@ export function withDagula (handler) {
     const dagula = await Dagula.fromNetwork(libp2p, { peer: env.REMOTE_PEER })
     return handler(request, env, { ...ctx, dagula })
   }
+}
+
+/**
+ * Get sentry instance if configured
+ *
+ * @param {Request} request
+ * @param {Environment} env
+ * @param {Context} ctx
+ */
+function getSentry (request, env, ctx) {
+  if (!env.SENTRY_DSN) {
+    return
+  }
+
+  return new Toucan({
+    request,
+    dsn: env.SENTRY_DSN,
+    context: ctx,
+    allowedHeaders: ['user-agent'],
+    allowedSearchParams: /(.*)/,
+    debug: false,
+    environment: env.ENV || 'dev',
+    rewriteFrames: {
+      // sourcemaps only work if stack filepath are absolute like `/worker.js`
+      root: '/'
+    },
+    release: SENTRY_RELEASE,
+    pkg
+  })
 }
