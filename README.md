@@ -17,5 +17,7 @@
     ```console
     # multiaddr (with peer ID) of peer to transfer from
     $ wrangler secret put REMOTE_PEER --env DEVELOPER
+    # Monitoring setup - Get from Sentry
+    $ wrangler secret put SENTRY_DSN --env DEVELOPER
     ```
 4. Publish `wrangler publish --env DEVELOPER`

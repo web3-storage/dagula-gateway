@@ -19,7 +19,7 @@ import { nanoid } from 'nanoid'
 export function getMiniflare (env) {
   return new Miniflare({
     bindings: env,
-    scriptPath: 'dist/worker.mjs',
+    scriptPath: 'dist/worker.js',
     packagePath: true,
     wranglerConfigPath: true,
     // We don't want to rebuild our worker for each test, we're already doing
